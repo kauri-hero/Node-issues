@@ -95,6 +95,7 @@ impl Rerunner for RerunnerReal {
     fn rerun(&self, args: Vec<String>) {
         let mut prefixed_args = vec![String::new()];
         prefixed_args.extend(args);
+        eprintln!("------\nRerunning with args: {:?}\n------", prefixed_args);
         main_with_args(&prefixed_args);
     }
 }
@@ -119,7 +120,7 @@ impl DaemonInitializer {
                 .data_dir()
                 .expect("No data directory")
                 .join("MASQ"),
-            &RealUser::null().populate(dirs_wrapper),
+            &RealUser::new(None, None, None).populate(dirs_wrapper),
             LevelFilter::Trace,
             Some("daemon"),
         );

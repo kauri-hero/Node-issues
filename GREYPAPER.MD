@@ -82,7 +82,7 @@ MASQ intends to keep user privacy as an utmost priority, as without true privacy
 Similarly, members of the Committee will remain pseudo-anonymous until such time that the network will be completely immutable, and there is little to no external threat to them. Some of the Committee are willing to be openly identified.
  
 <a id="key-goals"></a>
-# KEY GOALS CURRENTLY
+# PROJECT MILESTONES
 
 <a id="docker-cli"></a>
 ### Docker-Style CLI Interface - in progress, nearing completion
@@ -100,16 +100,15 @@ Through our amazing Community, we have formed a group who is developing a stream
 
 The GUI will first be a browser-based solution for Alpha and Beta type testing with community, and then be developed into further iterations of GUIs. These may be based on other platforms or languages for greater user experience and streamlined features.
 
-### Auto Port-Forwarding
+### Additional Key Milestones
 
-### Clandestine Routing
+* Auto Port-Forwarding
 
-### Neighborhood Modes
+* Clandestine Routing
 
-### Terminal Intelligence
+* Neighborhood Modes
 
-
-# NEXT STEPS
+* Terminal Intelligence
 
 ## MASQ Project GitHub is Open Source
 The MASQ [GitHub] is an Open Source fork of Substratum (the code base was created and developed by Substratum LLC, a registered US company based in Tennessee) – under the GPLv3 license. All the forked source code used from the latest repo of Substratum is cited as such and credit given properly.
@@ -122,8 +121,6 @@ Starting repositories include forks of:
 # Tokenomics
 
 >Our true goal is simply development!
-
-After much research, discussion, and advice from various parties the Committee decided on to launch the token strategy moving forward with MASQ Node.
 
 The MASQ ERC20 token will be a pure utility token. Its primary purpose is to provide a monetization component within the Node software to allow micro-transactions between nodes providing services to each-other within the network. These services are measured and values are individually set by the user of each Node, creating a 'free and open market' within the network itself for users to provide their bandwidth and Node routing services.
 
@@ -142,12 +139,11 @@ Final Total Supply is 236,424,274.7575735
 This is 50% of the original minted supply from the deployed Smart Contract
 
 ## Development Wallet
-A development wallet of 40 million tokens is earmarked to provide further project support during growth, testing and community engagement
+A development wallet of 40 million tokens is allocated, to be distributed at the discretion of the Committee following approval. Distribution is primarily for network-scaling, liquidity providers and business development as long as the market supports it. All distributions will be well communicated before any releases of this allocation.
 
 ## Committee Wallets
-Permanent committee members will receive a one-off 1.25 million tokens each
-
-(at time of writing we have 7 permanent members, so if this changes we will announce immediately)
+A Committee wallet has 9 million tokens allocated for members
+*(currently there are 6 permanent members)*
 
 ## Airdrop Distribution (completed on Feb 22, 2020)
 All non-exchange wallets **holding 500 or more SUB tokens** were airdropped MASQ tokens on a 1:1 ratio
@@ -167,13 +163,13 @@ Details around this are still being explored, but these tokens will be repurpose
 
 
 <a id="support-us"></a>
-# DON THE MASQ AND GET INVOLVED
+# GET INVOLVED
 
 >Do you have a passion for Freedom? Freedom of Information for the world?
 >Do you have knowledge of Rust, or similar programming and would like to volunteer some of your time?
->Have you simply wanted to try a superior alternative to VPN or Tor?
+>Have you simply wanted and try to test a superior alternative to VPN or Tor?
 
-**Join our Community and Get in Touch with us!**
+**Join our Community and Contact us!**
 
 Get in Touch
  - [Telegram]

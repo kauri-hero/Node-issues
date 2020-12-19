@@ -28,7 +28,7 @@ impl CommandProcessorFactory for CommandProcessorFactoryReal {
         let ui_port = value_t!(matches, "ui-port", u16).expect("ui-port is not properly defaulted");
         match CommandContextReal::new(ui_port, broadcast_stream_factory) {
             Ok(context) => Ok(Box::new(CommandProcessorReal { context })),
-            Err(ContextError::ConnectionRefused(s)) => Err(CommandError::ConnectionRefused(s)),
+            Err(ContextError::ConnectionRefused(s)) => Err(CommandError::ConnectionProblem(s)),
             Err(e) => panic!("Unexpected error: {:?}", e),
         }
     }
@@ -65,9 +65,9 @@ mod tests {
     use super::*;
     use crate::command_context::CommandContext;
     use crate::communications::broadcast_handler::StreamFactoryReal;
-    use crate::test_utils::mock_websockets_server::MockWebSocketsServer;
     use masq_lib::messages::ToMessageBody;
     use masq_lib::messages::{UiShutdownRequest, UiShutdownResponse};
+    use masq_lib::test_utils::mock_websockets_server::MockWebSocketsServer;
     use masq_lib::utils::find_free_port;
 
     #[derive(Debug)]
@@ -75,7 +75,7 @@ mod tests {
 
     impl Command for TestCommand {
         fn execute<'a>(&self, context: &mut dyn CommandContext) -> Result<(), CommandError> {
-            match context.transact(UiShutdownRequest {}.tmb(1)) {
+            match context.transact(UiShutdownRequest {}.tmb(1), 1000) {
                 Ok(_) => Ok(()),
                 Err(e) => Err(CommandError::Other(format!("{:?}", e))),
             }
@@ -94,10 +94,12 @@ mod tests {
 
         let result = subject.make(Box::new(StreamFactoryReal::new()), &args);
 
-        match result {
-            Ok(_) => panic!("Success! Was hoping for failure."),
-            Err(CommandError::ConnectionRefused(_)) => (),
-            Err(e) => panic!("Expected ConnectionRefused, got {:?}", e),
+        match result.err() {
+            Some(CommandError::ConnectionProblem(_)) => (),
+            x => panic!(
+                "Expected Some(CommandError::ConnectionProblem(_); got {:?} instead",
+                x
+            ),
         }
     }
 

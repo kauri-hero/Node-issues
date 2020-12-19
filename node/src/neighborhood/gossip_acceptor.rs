@@ -1046,10 +1046,7 @@ impl<'a> GossipAcceptor for GossipAcceptorReal<'a> {
             .gossip_handlers
             .iter()
             .map(|h| (h.qualifies(database, &agrs, gossip_source), h.as_ref()))
-            .find(|pair| match pair {
-                (Qualification::Unmatched, _) => false,
-                _ => true,
-            })
+            .find(|pair| !matches!(pair, (Qualification::Unmatched, _)))
             .expect("gossip_handlers should intercept everything");
         match qualification {
             Qualification::Matched => {
@@ -1128,7 +1125,8 @@ mod tests {
     use crate::test_utils::neighborhood_test_utils::{
         db_from_node, make_meaningless_db, make_node_record, make_node_record_f,
     };
-    use crate::test_utils::{assert_contains, main_cryptde, vec_to_set, DEFAULT_CHAIN_ID};
+    use crate::test_utils::{assert_contains, main_cryptde, vec_to_set};
+    use masq_lib::test_utils::utils::DEFAULT_CHAIN_ID;
     use std::convert::TryInto;
     use std::str::FromStr;
 

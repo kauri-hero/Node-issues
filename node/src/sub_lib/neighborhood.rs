@@ -17,6 +17,7 @@ use actix::Message;
 use actix::Recipient;
 use core::fmt;
 use lazy_static::lazy_static;
+use masq_lib::constants::DEFAULT_CHAIN_NAME;
 use masq_lib::ui_gateway::NodeFromUiMessage;
 use serde_derive::{Deserialize, Serialize};
 use std::fmt::{Debug, Display, Formatter};
@@ -86,10 +87,7 @@ impl NeighborhoodMode {
     }
 
     pub fn accepts_connections(&self) -> bool {
-        match self {
-            NeighborhoodMode::Standard(_, _, _) => true,
-            _ => false,
-        }
+        matches!(self, NeighborhoodMode::Standard(_, _, _))
     }
 
     pub fn routes_data(&self) -> bool {
@@ -101,31 +99,19 @@ impl NeighborhoodMode {
     }
 
     pub fn is_standard(&self) -> bool {
-        match self {
-            NeighborhoodMode::Standard(_, _, _) => true,
-            _ => false,
-        }
+        matches!(self, NeighborhoodMode::Standard(_, _, _))
     }
 
     pub fn is_originate_only(&self) -> bool {
-        match self {
-            NeighborhoodMode::OriginateOnly(_, _) => true,
-            _ => false,
-        }
+        matches!(self, NeighborhoodMode::OriginateOnly(_, _))
     }
 
     pub fn is_consume_only(&self) -> bool {
-        match self {
-            NeighborhoodMode::ConsumeOnly(_) => true,
-            _ => false,
-        }
+        matches!(self, NeighborhoodMode::ConsumeOnly(_))
     }
 
     pub fn is_zero_hop(&self) -> bool {
-        match self {
-            NeighborhoodMode::ZeroHop => true,
-            _ => false,
-        }
+        matches!(self, NeighborhoodMode::ZeroHop)
     }
 }
 
@@ -184,13 +170,13 @@ impl From<(&NodeRecord, bool, &dyn CryptDE)> for NodeDescriptor {
 impl NodeDescriptor {
     pub fn from_str(cryptde: &dyn CryptDE, s: &str) -> Result<NodeDescriptor, String> {
         let (mainnet, pieces) = {
-            let chain_id = chain_id_from_name("mainnet");
+            let chain_id = chain_id_from_name(DEFAULT_CHAIN_NAME);
             let delimiter = node_descriptor_delimiter(chain_id);
             let pieces: Vec<&str> = s.splitn(2, delimiter).collect();
             if pieces.len() == 2 {
                 (true, pieces)
             } else {
-                let chain_id = chain_id_from_name("testnet");
+                let chain_id = chain_id_from_name("ropsten");
                 let delimiter = node_descriptor_delimiter(chain_id);
                 let pieces: Vec<&str> = s.splitn(2, delimiter).collect();
                 if pieces.len() == 2 {
@@ -265,7 +251,6 @@ pub struct NeighborhoodSubs {
     pub remove_neighbor: Recipient<RemoveNeighborMessage>,
     pub stream_shutdown_sub: Recipient<StreamShutdownMsg>,
     pub set_consuming_wallet_sub: Recipient<SetConsumingWalletMessage>,
-    pub from_ui_gateway: Recipient<NeighborhoodDotGraphRequest>,
     pub from_ui_message_sub: Recipient<NodeFromUiMessage>,
 }
 
@@ -421,9 +406,10 @@ impl fmt::Display for GossipFailure_0v1 {
 mod tests {
     use super::*;
     use crate::sub_lib::cryptde_real::CryptDEReal;
+    use crate::test_utils::main_cryptde;
     use crate::test_utils::recorder::Recorder;
-    use crate::test_utils::{main_cryptde, DEFAULT_CHAIN_ID};
     use actix::Actor;
+    use masq_lib::test_utils::utils::DEFAULT_CHAIN_ID;
     use masq_lib::utils::localhost;
     use std::str::FromStr;
 
@@ -452,7 +438,6 @@ mod tests {
             remove_neighbor: recipient!(recorder, RemoveNeighborMessage),
             stream_shutdown_sub: recipient!(recorder, StreamShutdownMsg),
             set_consuming_wallet_sub: recipient!(recorder, SetConsumingWalletMessage),
-            from_ui_gateway: recipient!(recorder, NeighborhoodDotGraphRequest),
             from_ui_message_sub: recipient!(recorder, NodeFromUiMessage),
         };
 

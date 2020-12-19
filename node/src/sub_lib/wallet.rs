@@ -78,10 +78,7 @@ impl PartialEq<WalletKind> for WalletKind {
                 }
                 _ => false,
             },
-            WalletKind::Uninitialized => match self {
-                WalletKind::Uninitialized => true,
-                _ => false,
-            },
+            WalletKind::Uninitialized => matches!(self, WalletKind::Uninitialized),
         }
     }
 }
@@ -436,8 +433,9 @@ impl Serialize for Wallet {
 mod tests {
     use super::*;
     use crate::blockchain::blockchain_interface::contract_address;
-    use crate::test_utils::{make_paying_wallet, make_wallet, DEFAULT_CHAIN_ID};
+    use crate::test_utils::{make_paying_wallet, make_wallet};
     use bip39::{Language, Mnemonic, Seed};
+    use masq_lib::test_utils::utils::DEFAULT_CHAIN_ID;
     use rusqlite::Connection;
     use rustc_hex::FromHex;
     use serde_cbor;

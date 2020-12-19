@@ -1,7 +1,7 @@
 // Copyright (c) 2017-2019, Substratum LLC (https://substratum.net) and/or its affiliates. All rights reserved.
 use crate::sub_lib::route::RouteError;
 use ethsign_crypto::Keccak256;
-use rustc_hex::ToHex;
+use rustc_hex::{FromHex, ToHex};
 use serde::de::Visitor;
 use serde::Deserialize;
 use serde::Deserializer;
@@ -9,6 +9,7 @@ use serde::Serialize;
 use serde::Serializer;
 use std::fmt;
 use std::iter::FromIterator;
+use std::str::FromStr;
 
 #[derive(Clone, PartialEq)]
 pub struct PrivateKey {
@@ -408,6 +409,23 @@ impl From<Vec<u8>> for PlainData {
     }
 }
 
+impl FromStr for PlainData {
+    type Err = String;
+
+    #[allow(clippy::manual_strip)]
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        let hex = if value.starts_with("0x") {
+            &value[2..]
+        } else {
+            value
+        };
+        match hex.from_hex::<Vec<u8>>() {
+            Ok(bytes) => Ok(PlainData::from(bytes)),
+            Err(e) => Err(format!("{:?}", e)),
+        }
+    }
+}
+
 impl Into<Vec<u8>> for PlainData {
     fn into(self) -> Vec<u8> {
         self.data
@@ -607,7 +625,8 @@ pub fn create_digest(msg: &dyn AsRef<[u8]>, address: &dyn AsRef<[u8]>) -> [u8; 3
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::test_utils::{main_cryptde, DEFAULT_CHAIN_ID};
+    use crate::test_utils::main_cryptde;
+    use masq_lib::test_utils::utils::DEFAULT_CHAIN_ID;
     use rustc_hex::{FromHex, FromHexError};
     use serde::de;
     use serde::ser;
@@ -833,6 +852,36 @@ mod tests {
         let result: Vec<u8> = subject.into();
 
         assert_eq!(result, vec!(1, 2, 3, 4));
+    }
+
+    #[test]
+    fn plain_data_try_from_str_good_bare() {
+        let subject = PlainData::from_str("0123456789ABCDEF").unwrap();
+
+        assert_eq!(
+            subject,
+            PlainData::new(&[0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF])
+        );
+    }
+
+    #[test]
+    fn plain_data_try_from_str_good_prefixed() {
+        let subject = PlainData::from_str("0x0123456789ABCDEF").unwrap();
+
+        assert_eq!(
+            subject,
+            PlainData::new(&[0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF])
+        );
+    }
+
+    #[test]
+    fn plain_data_try_from_str_bad() {
+        let result = PlainData::from_str("Not a hexadecimal value");
+
+        assert_eq!(
+            result,
+            Err("Invalid character 'N' at position 0".to_string())
+        );
     }
 
     #[test]

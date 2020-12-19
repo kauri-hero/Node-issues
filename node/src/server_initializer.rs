@@ -16,13 +16,15 @@ use flexi_logger::Logger;
 use flexi_logger::{Cleanup, Criterion, LevelFilter, Naming};
 use flexi_logger::{DeferredNow, Duplicate, Record};
 use futures::try_ready;
+use lazy_static::lazy_static;
 use masq_lib::command::Command;
 use masq_lib::command::StdStreams;
 use masq_lib::shared_schema::ConfiguratorError;
 use std::any::Any;
 use std::fmt::Debug;
 use std::panic::{Location, PanicInfo};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
+use std::sync::{Mutex, MutexGuard};
 use std::{io, thread};
 use tokio::prelude::Async;
 use tokio::prelude::Future;
@@ -36,49 +38,50 @@ pub struct ServerInitializer {
 impl Command for ServerInitializer {
     fn go(&mut self, streams: &mut StdStreams<'_>, args: &[String]) -> u8 {
         let mut result: Result<(), ConfiguratorError> = Ok(());
-        let exit_code =
-            if args.contains(&"--help".to_string()) || args.contains(&"--version".to_string()) {
-                self.privilege_dropper
-                    .drop_privileges(&RealUser::null().populate(&RealDirsWrapper {}));
-                result = Self::combine_results(
-                    result,
-                    NodeConfiguratorStandardPrivileged::new().configure(&args.to_vec(), streams),
-                );
-                0
-            } else {
-                result = Self::combine_results(
-                    result,
-                    self.dns_socket_server
-                        .as_mut()
-                        .initialize_as_privileged(args, streams),
-                );
-                result = Self::combine_results(
-                    result,
-                    self.bootstrapper
-                        .as_mut()
-                        .initialize_as_privileged(args, streams),
-                );
+        let exit_code = if args.contains(&"--help".to_string())
+            || args.contains(&"--version".to_string())
+        {
+            self.privilege_dropper
+                .drop_privileges(&RealUser::new(None, None, None).populate(&RealDirsWrapper {}));
+            result = Self::combine_results(
+                result,
+                NodeConfiguratorStandardPrivileged::new().configure(&args.to_vec(), streams),
+            );
+            0
+        } else {
+            result = Self::combine_results(
+                result,
+                self.dns_socket_server
+                    .as_mut()
+                    .initialize_as_privileged(args, streams),
+            );
+            result = Self::combine_results(
+                result,
+                self.bootstrapper
+                    .as_mut()
+                    .initialize_as_privileged(args, streams),
+            );
 
-                let config = self.bootstrapper.get_configuration();
-                let real_user = config.real_user.populate(&RealDirsWrapper {});
-                self.privilege_dropper
-                    .chown(&config.data_directory, &real_user);
-                self.privilege_dropper.drop_privileges(&real_user);
+            let config = self.bootstrapper.get_configuration();
+            let real_user = config.real_user.populate(&RealDirsWrapper {});
+            self.privilege_dropper
+                .chown(&config.data_directory, &real_user);
+            self.privilege_dropper.drop_privileges(&real_user);
 
-                result = Self::combine_results(
-                    result,
-                    self.dns_socket_server
-                        .as_mut()
-                        .initialize_as_unprivileged(args, streams),
-                );
-                result = Self::combine_results(
-                    result,
-                    self.bootstrapper
-                        .as_mut()
-                        .initialize_as_unprivileged(args, streams),
-                );
-                1
-            };
+            result = Self::combine_results(
+                result,
+                self.dns_socket_server
+                    .as_mut()
+                    .initialize_as_unprivileged(args, streams),
+            );
+            result = Self::combine_results(
+                result,
+                self.bootstrapper
+                    .as_mut()
+                    .initialize_as_unprivileged(args, streams),
+            );
+            1
+        };
         if let Some(err) = result.err() {
             err.param_errors.into_iter().for_each(|param_error| {
                 writeln!(
@@ -142,6 +145,10 @@ impl Default for ServerInitializer {
     }
 }
 
+lazy_static! {
+    pub static ref LOGFILE_NAME: Mutex<PathBuf> = Mutex::new(PathBuf::from("uninitialized"));
+}
+
 pub trait LoggerInitializerWrapper: Send {
     fn init(
         &mut self,
@@ -193,9 +200,29 @@ impl LoggerInitializerWrapper for LoggerInitializerWrapperReal {
             }
         ));
         privilege_dropper.chown(&logfile_name, real_user);
+        *(Self::logfile_name_guard()) = logfile_name;
         std::panic::set_hook(Box::new(|panic_info| {
             panic_hook(AltPanicInfo::from(panic_info))
         }));
+    }
+}
+
+impl LoggerInitializerWrapperReal {
+    pub fn get_logfile_name() -> PathBuf {
+        let path: &Path = &(*(Self::logfile_name_guard()).clone());
+        path.to_path_buf()
+    }
+
+    #[cfg(test)]
+    pub fn set_logfile_name(logfile_name: PathBuf) {
+        *(Self::logfile_name_guard()) = logfile_name;
+    }
+
+    fn logfile_name_guard<'a>() -> MutexGuard<'a, PathBuf> {
+        match LOGFILE_NAME.lock() {
+            Ok(guard) => guard,
+            Err(poison_err) => poison_err.into_inner(),
+        }
     }
 }
 
@@ -401,6 +428,7 @@ pub mod tests {
     use super::*;
     use crate::crash_test_dummy::CrashTestDummy;
     use crate::server_initializer::test_utils::PrivilegeDropperMock;
+    use crate::test_utils::logfile_name_guard::LogfileNameGuard;
     use crate::test_utils::logging::{init_test_logging, TestLogHandler};
     use masq_lib::crash_point::CrashPoint;
     use masq_lib::shared_schema::{ConfiguratorError, ParamError};
@@ -672,6 +700,7 @@ pub mod tests {
 
     #[test]
     fn exits_after_all_socket_servers_exit() {
+        let _ = LogfileNameGuard::new(&PathBuf::from("uninitialized"));
         let dns_socket_server = CrashTestDummy::new(CrashPoint::Error, ());
         let bootstrapper = CrashTestDummy::new(CrashPoint::Error, BootstrapperConfig::new());
 
@@ -751,6 +780,7 @@ pub mod tests {
 
     #[test]
     fn go_should_drop_privileges() {
+        let _ = LogfileNameGuard::new(&PathBuf::from("uninitialized"));
         let real_user = RealUser::new(Some(123), Some(456), Some("booga".into()));
         let mut bootstrapper_config = BootstrapperConfig::new();
         bootstrapper_config.real_user = real_user.clone();
@@ -791,6 +821,7 @@ pub mod tests {
     }
 
     fn go_with_something_should_print_something_and_artificially_panic(parameter: &str) {
+        let _ = LogfileNameGuard::new(&PathBuf::from("uninitialized"));
         let dns_socket_server = SocketServerMock::new(());
         let bootstrapper = SocketServerMock::new(BootstrapperConfig::new());
         let privilege_dropper = PrivilegeDropperMock::new();
@@ -806,6 +837,7 @@ pub mod tests {
 
     #[test]
     fn go_should_combine_errors() {
+        let _ = LogfileNameGuard::new(&PathBuf::from("uninitialized"));
         let dns_socket_server = SocketServerMock::new(())
             .initialize_as_privileged_result(Err(ConfiguratorError::required(
                 "dns-iap",

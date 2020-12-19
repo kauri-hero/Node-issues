@@ -12,7 +12,7 @@ use std::str::FromStr;
 use std::time::Duration;
 
 lazy_static! {
-    pub static ref DEFAULT_EARNING_WALLET: Wallet = Wallet::from_str("0x47fB8671Db83008d382C2e6EA67fA377378c0CeA").expect("Internal error");
+    pub static ref DEFAULT_EARNING_WALLET: Wallet = Wallet::from_str("0x27d9A2AC83b493f88ce9B4532EDcf74e95B9788d").expect("Internal error");
     // TODO: The consuming wallet should never be defaulted; it should always come in from a
     // (possibly-complicated) command-line parameter, or the bidirectional GUI.
     pub static ref TEMPORARY_CONSUMING_WALLET: Wallet = Wallet::from_str("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").expect("Internal error");
@@ -34,7 +34,6 @@ pub struct AccountantSubs {
     pub report_exit_service_consumed: Recipient<ReportExitServiceConsumedMessage>,
     pub report_new_payments: Recipient<ReceivedPayments>,
     pub report_sent_payments: Recipient<SentPayments>,
-    pub get_financial_statistics_sub: Recipient<GetFinancialStatisticsMessage>,
     pub ui_message_sub: Recipient<NodeFromUiMessage>,
 }
 
@@ -113,7 +112,6 @@ mod tests {
             report_exit_service_consumed: recipient!(recorder, ReportExitServiceConsumedMessage),
             report_new_payments: recipient!(recorder, ReceivedPayments),
             report_sent_payments: recipient!(recorder, SentPayments),
-            get_financial_statistics_sub: recipient!(recorder, GetFinancialStatisticsMessage),
             ui_message_sub: recipient!(recorder, NodeFromUiMessage),
         };
 

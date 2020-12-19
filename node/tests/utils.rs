@@ -1,6 +1,7 @@
 // Copyright (c) 2017-2019, Substratum LLC (https://substratum.net) and/or its affiliates. All rights reserved.
 
-use node_lib::test_utils::TEST_DEFAULT_CHAIN_NAME;
+use masq_lib::constants::CURRENT_LOGFILE_NAME;
+use masq_lib::test_utils::utils::TEST_DEFAULT_CHAIN_NAME;
 use std::env;
 use std::io;
 use std::ops::Drop;
@@ -54,7 +55,7 @@ impl MASQNode {
 
     pub fn path_to_logfile() -> Box<Path> {
         Self::data_dir()
-            .join("MASQNode_rCURRENT.log")
+            .join(CURRENT_LOGFILE_NAME)
             .into_boxed_path()
     }
 

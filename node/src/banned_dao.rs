@@ -1,5 +1,6 @@
 // Copyright (c) 2017-2019, Substratum LLC (https://substratum.net) and/or its affiliates. All rights reserved.
-use crate::database::db_initializer::ConnectionWrapper;
+use crate::database::connection_wrapper::ConnectionWrapper;
+use crate::database::dao_utils::DaoFactoryReal;
 use crate::sub_lib::wallet::Wallet;
 use lazy_static::lazy_static;
 use rusqlite::{Error, ErrorCode, ToSql, NO_PARAMS};
@@ -65,6 +66,16 @@ pub trait BannedDao: Send {
     fn ban_list(&self) -> Vec<Wallet>;
     fn ban(&self, wallet: &Wallet);
     fn unban(&self, wallet: &Wallet);
+}
+
+pub trait BannedDaoFactory {
+    fn make(&self) -> Box<dyn BannedDao>;
+}
+
+impl BannedDaoFactory for DaoFactoryReal {
+    fn make(&self) -> Box<dyn BannedDao> {
+        Box::new(BannedDaoReal::new(self.make_connection()))
+    }
 }
 
 pub struct BannedDaoReal {
@@ -137,9 +148,10 @@ impl BannedDao for BannedDaoReal {
 mod tests {
     use super::*;
     use crate::database::db_initializer::{DbInitializer, DbInitializerReal};
-    use crate::test_utils::{make_paying_wallet, make_wallet, DEFAULT_CHAIN_ID};
+    use crate::test_utils::{make_paying_wallet, make_wallet};
     use masq_lib::test_utils::utils::{
         ensure_node_home_directory_does_not_exist, ensure_node_home_directory_exists,
+        DEFAULT_CHAIN_ID,
     };
     use rusqlite::NO_PARAMS;
 

@@ -1,10 +1,10 @@
 // Copyright (c) 2019-2020, MASQ (https://masq.ai) and/or its affiliates. All rights reserved.
+use crate::messages::NODE_UI_PROTOCOL;
+use crate::ui_gateway::{MessageBody, MessagePath};
+use crate::ui_traffic_converter::UiTrafficConverter;
+use crate::utils::localhost;
 use crossbeam_channel::{unbounded, Receiver, Sender};
 use lazy_static::lazy_static;
-use masq_lib::messages::NODE_UI_PROTOCOL;
-use masq_lib::ui_gateway::{MessageBody, MessagePath};
-use masq_lib::ui_traffic_converter::UiTrafficConverter;
-use masq_lib::utils::localhost;
 use std::net::SocketAddr;
 use std::sync::{Arc, Mutex};
 use std::thread;
@@ -102,7 +102,20 @@ impl MockWebSocketsServer {
             log(do_log, index, "Waiting for handshake");
             let mut client = upgrade.accept().unwrap();
             client.set_nonblocking(true).unwrap();
-            looping_tx.send(()).unwrap();
+            match looping_tx.send(()) {
+                Ok(_) => (),
+                Err(e) => {
+                    log(
+                        do_log,
+                        index,
+                        &format!(
+                            "MockWebSocketsServerStopHandle died before loop could start: {:?}",
+                            e
+                        ),
+                    );
+                    return;
+                }
+            }
             log(do_log, index, "Entering background loop");
             loop {
                 log(do_log, index, "Checking for message from client");
@@ -117,7 +130,7 @@ impl MockWebSocketsServer {
                         log(do_log, index, "No message waiting");
                         None
                     }
-                    Err(e) => panic!("Error serving WebSocket: {:?}", e),
+                    Err(e) => Some(Err(format!("Error serving WebSocket: {:?}", e))),
                     Ok(OwnedMessage::Text(json)) => {
                         log(do_log, index, &format!("Received '{}'", json));
                         Some(match UiTrafficConverter::new_unmarshal_from_ui(&json, 0) {
@@ -131,7 +144,11 @@ impl MockWebSocketsServer {
                     }
                 };
                 if let Some(incoming) = incoming_opt {
-                    log(do_log, index, "Recording incoming message");
+                    log(
+                        do_log,
+                        index,
+                        &format!("Recording incoming message: {:?}", incoming),
+                    );
                     requests.push(incoming.clone());
                     if let Ok(message_body) = incoming {
                         match message_body.path {
@@ -160,7 +177,14 @@ impl MockWebSocketsServer {
                                         client.send_message(&OwnedMessage::Text(outgoing)).unwrap()
                                     }
                                 }
-                                om => client.send_message(&om).unwrap(),
+                                om => {
+                                    log(
+                                        do_log,
+                                        index,
+                                        &format!("Responding with preset OwnedMessage: {:?}", om),
+                                    );
+                                    client.send_message(&om).unwrap()
+                                }
                             },
                             MessagePath::FireAndForget => {
                                 log(
@@ -263,11 +287,13 @@ fn log(log: bool, index: u64, msg: &str) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use masq_lib::messages::UiSetupResponseValueStatus::Set;
-    use masq_lib::messages::{FromMessageBody, ToMessageBody, UiSetupResponse, UiUnmarshalError};
-    use masq_lib::messages::{UiSetupResponseValue, NODE_UI_PROTOCOL};
-    use masq_lib::test_utils::ui_connection::UiConnection;
-    use masq_lib::utils::find_free_port;
+    use crate::messages::UiSetupResponseValueStatus::Set;
+    use crate::messages::{
+        FromMessageBody, ToMessageBody, UiSetupResponse, UiSetupResponseValue, UiUnmarshalError,
+        NODE_UI_PROTOCOL,
+    };
+    use crate::test_utils::ui_connection::UiConnection;
+    use crate::utils::find_free_port;
 
     #[test]
     #[ignore]

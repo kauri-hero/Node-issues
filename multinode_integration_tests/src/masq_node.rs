@@ -1,7 +1,7 @@
 // Copyright (c) 2017-2019, Substratum LLC (https://substratum.net) and/or its affiliates. All rights reserved.
 use crate::command::Command;
 use base64::STANDARD_NO_PAD;
-use masq_lib::constants::HIGHEST_USABLE_PORT;
+use masq_lib::constants::{CURRENT_LOGFILE_NAME, HIGHEST_USABLE_PORT};
 use node_lib::sub_lib::cryptde::{CryptDE, PublicKey};
 use node_lib::sub_lib::cryptde_null::CryptDENull;
 use node_lib::sub_lib::neighborhood::RatePack;
@@ -181,7 +181,7 @@ pub trait MASQNode: Any {
     fn consuming_wallet(&self) -> Option<Wallet>;
     // The RatePack this Node will use to charge fees.
     fn rate_pack(&self) -> RatePack;
-    // Valid values are "dev, "ropsten" for now. Add "mainnet" when it's time.
+    // Valid values are "dev, "ropsten", "rinkeby" for now. Add "mainnet" when it's time.
     fn chain(&self) -> Option<String>;
     fn accepts_connections(&self) -> bool;
     fn routes_data(&self) -> bool;
@@ -248,7 +248,7 @@ impl MASQNodeUtils {
                 "-t",
                 name,
                 "cat",
-                "/node_root/home/MASQNode_rCURRENT.log",
+                &format!("/node_root/home/{}", CURRENT_LOGFILE_NAME),
             ]),
         );
         command.stdout_and_stderr()

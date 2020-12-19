@@ -6,6 +6,7 @@ use crate::blockchain::blockchain_interface::BlockchainResult;
 use crate::sub_lib::peer_actors::BindMessage;
 use actix::Message;
 use actix::Recipient;
+use masq_lib::ui_gateway::NodeFromUiMessage;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
 
@@ -21,8 +22,7 @@ pub struct BlockchainBridgeSubs {
     pub bind: Recipient<BindMessage>,
     pub report_accounts_payable: Recipient<ReportAccountsPayable>,
     pub retrieve_transactions: Recipient<RetrieveTransactions>,
-    pub set_consuming_db_password_sub: Recipient<SetDbPasswordMsg>,
-    pub set_gas_price_sub: Recipient<SetGasPriceMsg>,
+    pub ui_sub: Recipient<NodeFromUiMessage>,
 }
 
 impl Debug for BlockchainBridgeSubs {
@@ -57,6 +57,7 @@ mod tests {
     use super::*;
     use crate::test_utils::recorder::Recorder;
     use actix::Actor;
+    use masq_lib::ui_gateway::NodeFromUiMessage;
 
     #[test]
     fn blockchain_bridge_subs_debug() {
@@ -66,8 +67,7 @@ mod tests {
             bind: recipient!(recorder, BindMessage),
             report_accounts_payable: recipient!(recorder, ReportAccountsPayable),
             retrieve_transactions: recipient!(recorder, RetrieveTransactions),
-            set_consuming_db_password_sub: recipient!(recorder, SetDbPasswordMsg),
-            set_gas_price_sub: recipient!(recorder, SetGasPriceMsg),
+            ui_sub: recipient!(recorder, NodeFromUiMessage),
         };
 
         assert_eq!(format!("{:?}", subject), "BlockchainBridgeSubs");

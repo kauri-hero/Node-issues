@@ -52,6 +52,7 @@ use std::rc::Rc;
 use std::time::Duration;
 use tokio::prelude::Future;
 
+pub const CRASH_KEY: &str = "PROXYSERVER";
 pub const RETURN_ROUTE_TTL: Duration = Duration::from_secs(120);
 
 struct ProxyServerOutSubs {
@@ -782,10 +783,8 @@ impl ProxyServer {
         let destination_key_opt = if !expected_services.is_empty()
             && expected_services
                 .iter()
-                .all(|expected_service| match expected_service {
-                    ExpectedService::Nothing => true,
-                    _ => false,
-                }) {
+                .all(|expected_service| matches!(expected_service, ExpectedService::Nothing))
+        {
             Some(payload.originator_public_key.clone())
         } else {
             expected_services.iter().find_map(|service| match service {
@@ -975,6 +974,7 @@ mod tests {
     use crate::sub_lib::wallet::Wallet;
     use crate::test_utils::logging::init_test_logging;
     use crate::test_utils::logging::TestLogHandler;
+    use crate::test_utils::make_meaningless_stream_key;
     use crate::test_utils::recorder::make_recorder;
     use crate::test_utils::recorder::peer_actors_builder;
     use crate::test_utils::recorder::Recorder;
@@ -983,9 +983,9 @@ mod tests {
     use crate::test_utils::{alias_cryptde, rate_pack};
     use crate::test_utils::{main_cryptde, make_wallet};
     use crate::test_utils::{make_meaningless_route, make_paying_wallet};
-    use crate::test_utils::{make_meaningless_stream_key, DEFAULT_CHAIN_ID};
     use actix::System;
     use masq_lib::constants::{HTTP_PORT, TLS_PORT};
+    use masq_lib::test_utils::utils::DEFAULT_CHAIN_ID;
     use std::cell::RefCell;
     use std::net::SocketAddr;
     use std::str::FromStr;
