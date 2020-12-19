@@ -65,7 +65,6 @@ The software solution is made up of three design components:
 
  - Untraceable - Completed - Data is sent through a multi-hop network route that changes too quickly to trace
  
-<a id="clandestine"></a>
  - Clandestine – **In progress** - Will hide not only the data, not only the route, but also the very fact that the user is using MASQ at all
  
 Read more about these methods in detail on the [Encryption Wiki Page]
