@@ -19,7 +19,7 @@
 | References | [References](#references) |
 
 <a id="preamble"></a>
-# PREAMBLE THE GREYPAPER
+## PREAMBLE THE GREYPAPER
 
 Readers may be thinking “Why is this document is called a ‘Greypaper’, and not a Whitepaper?
 
