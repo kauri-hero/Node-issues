@@ -102,7 +102,7 @@ The interfacing itself is handled across WebSockets broadcasts, handled by UIs a
 
 <a id="gui"></a>
 ### Graphic User Interface (GUI) - in progress
-Through our amazing Community, we have formed a group who is developing a streamlined GUI that will operate my communicating through the new MASQ Node UI-Gateway over Websocket broadcasts and messaging.
+Through our amazing Community, we have formed a group who is developing a streamlined GUI that will operate my communicating through the new MASQNode-UIv2-Gateway over Websocket broadcasts and messaging.
 
 The GUI will first be a browser-based solution for Alpha and Beta type testing with community, and then be developed into further iterations of GUIs. These may be based on other platforms or languages for greater user experience and streamlined features. This has been 
 
