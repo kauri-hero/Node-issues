@@ -21,9 +21,9 @@
 <a id="preamble"></a>
 ## PREAMBLE THE GREYPAPER
 
-Readers may be thinking “Why is this document is called a ‘Greypaper’, and not a Whitepaper?
+Readers may be thinking “Why is this document is called a ‘Greypaper’, and not a Whitepaper?"
 
-The Committee’s combined years of experience in business, technology, cryptocurrency and project management yielded an interesting idea - one of the MASQ Committee decided that there had to be an alternative to the mainstream idea of releasing a Whitepaper.
+The MASQ committee’s combined years of experience in business, technology, cryptocurrency and project management yielded an interesting idea - one of the MASQ committee decided that there had to be an alternative to the mainstream idea of releasing a Whitepaper.
 
 Whitepapers are exactly what they sound like – written in black and white and often outlining definitive goals and deadlines.
 
@@ -61,9 +61,9 @@ By doing so, it will allow content available on the World Wide Web to be accessi
 
 The software solution is made up of three design components: 
 
- - Encrypted - Completed - Node allows--and encourages--encrypted connections, but it mainly addresses operations on a lower level. It operates on standard protocols such as TLS, SSL and HTTP/S 
+ - Encrypted - **Completed** - Node allows--and encourages--encrypted connections, but it mainly addresses operations on a lower level. It operates on standard protocols such as TLS, SSL and HTTP/S 
 
- - Untraceable - Completed - Data is sent through a multi-hop network route that changes too quickly to trace
+ - Untraceable - **Completed** - Data is sent through a multi-hop network route that changes too quickly to trace
  
  - Clandestine – **In progress** - Will hide not only the data, not only the route, but also the very fact that the user is using MASQ at all
  
@@ -147,7 +147,6 @@ Our smart contract in Solidity can be view publicly on our [verified contract ad
 *The MASQ v2 utility token was announced on 17th October, 2020.
 Detailed information can be immediately referenced on this [Medium post](https://medium.com/masq-project/masq-v2-tokenomics-8a9c4aa91cb4)*
 
-
 **Total Token Supply: 38,947,981**
 
 Airdrop Swap Pool: 4,447,981
@@ -189,7 +188,6 @@ Upon minting, non-circulating tokens will be distributed from the deployer walle
 *(note these tokens are made available to provide v2 token liquidity to Linkswap, and staking reward programs)*
 
 ** *(which is divided by committee)*
-
 
 <a id="support-us"></a>
 # GET INVOLVED
