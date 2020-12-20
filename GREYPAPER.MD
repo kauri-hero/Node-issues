@@ -185,9 +185,11 @@ Upon minting, non-circulating tokens will be distributed from the deployer walle
 
 - 1,900,000 released per month thereafter, for total of 4 months
 
-*(note these tokens are made available to provide v2 token liquidity to Linkswap, and staking reward programs)*
+\* *(which is divided by committee)*
 
-** *(which is divided by committee)*
+\** *(note these tokens are made available to provide v2 token liquidity to Linkswap, and staking reward programs)*
+
+
 
 <a id="support-us"></a>
 # GET INVOLVED
