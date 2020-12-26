@@ -209,7 +209,7 @@ Get in Touch
 <a id="donate"></a>
 # SUPPORT OUR CAUSE
 
-As all of our Committee are volunteers donating our time and efforts, we will rely on donations from our community to help fund airdrop services, gas fees and other related costs.
+As all of our Committee are volunteers donating our time and efforts, we will rely on donations from our community to help fund hosting, development, website services and other project expenses
 
 ETH address for any donations from our wonderful community:
 
@@ -222,8 +222,8 @@ BTC - ```bc1qnsm0eqt9z9228n7hqc6a0g9dns84vsg3whnmsh```
 
 **Substratum Sources and Links:**
 - [GNU GPLv3 License](https://github.com/SubstratumNetwork/SubstratumNode/blob/master/LICENSE)
-- [SubNode Repo](https://github.com/SubstratumNetwork/SubstratumNode)
-- [SubTNT Repo](https://github.com/SubstratumNetwork/TNT)
+- [Original Codebase Repo](https://github.com/SubstratumNetwork/SubstratumNode)
+- [Original TNT Repo](https://github.com/SubstratumNetwork/TNT)
 
 **OpenZeppelin Token Contracts:**
 - [MIT License](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/LICENSE)
@@ -233,8 +233,8 @@ BTC - ```bc1qnsm0eqt9z9228n7hqc6a0g9dns84vsg3whnmsh```
 
 [//]: # (These are reference links used in the body of this note and get stripped out when the markdown processor does its job)
 
-   [SubNode]: <https://github.com/SubstratumNetwork/SubstratumNode>
-   [SubTNT]: <https://github.com/SubstratumNetwork/TNT>
+   [Original Codebase Repo]: <https://github.com/SubstratumNetwork/SubstratumNode>
+   [Original TNT Repo]: <https://github.com/SubstratumNetwork/TNT>
    [sub-contract]: <https://github.com/SubstratumNetwork/sub-contract>
    [Telegram]: <https://t.me/MASQ_ai>
    [Twitter]: <https://twitter.com/MASQ_ai>
